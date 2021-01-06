@@ -1,0 +1,5 @@
+I made this script to automate the process of creating a boilerplate for a basic CRUD app using Node, Express, Mongoose etc. It will create the basic directories and files needed to get you started. It will also create a basic data schema/model mimmicing a blogpost/application. Feel free to edit to suit your needs. It will also create basic restful CRUD routes in the app.js file. Please go through the app.js file and edit as needed. 
+
+To run the script using Node, simply run $ node boilerplate MainFolderName .
+
+If no folder name was provided, it will default to Project. 
