@@ -7,29 +7,6 @@
 
 const fs = require('fs');
 const folderName = process.argv[2] || 'Project';
-fs.mkdirSync(folderName);
-fs.mkdirSync(`${folderName}/public`);
-fs.mkdirSync(`${folderName}/public/img`);
-fs.mkdirSync(`${folderName}/public/screenshots`);
-fs.mkdirSync(`${folderName}/public/scripts`);
-fs.mkdirSync(`${folderName}/public/styles`);
-fs.mkdirSync(`${folderName}/public/styles/css`);
-fs.mkdirSync(`${folderName}/public/styles/fonts`);
-fs.mkdirSync(`${folderName}/views`);
-fs.mkdirSync(`${folderName}/views/partials`);
-
-fs.writeFileSync(`${folderName}/app.js`);
-fs.writeFileSync(`${folderName}/package.json`);
-fs.writeFileSync(`${folderName}/views/index.ejs`);
-fs.writeFileSync(`${folderName}/views/new.ejs`);
-fs.writeFileSync(`${folderName}/views/show.ejs`);
-fs.writeFileSync(`${folderName}/views/edit.ejs`);
-fs.writeFileSync(`${folderName}/views/partials/header.ejs`);
-fs.writeFileSync(`${folderName}/views/partials/footer.ejs`);
-fs.writeFileSync(`${folderName}/public/styles/css/app.css`);
-
-
-
 
 const appJsData = `const express          = require('express'),
       methodOverride   = require('method-override'),
@@ -196,11 +173,32 @@ const packageJSONData = `{
 const ejsIncludeData = `<%- include('partials/header') %>
 
 <%- include('partials/footer') %>
-`
+`;
 
-fs.writeFileSync(`${folderName}/app.js`, appJsData);
-fs.writeFileSync(`${folderName}/package.json`, packageJSONData);
-fs.writeFileSync(`${folderName}/views/index.ejs`, ejsIncludeData);
-fs.writeFileSync(`${folderName}/views/new.ejs`, ejsIncludeData);
-fs.writeFileSync(`${folderName}/views/show.ejs`, ejsIncludeData);
-fs.writeFileSync(`${folderName}/views/edit.ejs`, ejsIncludeData);
+
+
+try {
+    fs.mkdirSync(folderName);
+    fs.mkdirSync(`${folderName}/public`);
+    fs.mkdirSync(`${folderName}/public/img`);
+    fs.mkdirSync(`${folderName}/public/screenshots`);
+    fs.mkdirSync(`${folderName}/public/scripts`);
+    fs.mkdirSync(`${folderName}/public/styles`);
+    fs.mkdirSync(`${folderName}/public/styles/css`);
+    fs.mkdirSync(`${folderName}/public/styles/fonts`);
+    fs.mkdirSync(`${folderName}/views`);
+    fs.mkdirSync(`${folderName}/views/partials`);
+
+    fs.writeFileSync(`${folderName}/app.js`, appJsData);
+    fs.writeFileSync(`${folderName}/package.json`, packageJSONData);
+    fs.writeFileSync(`${folderName}/views/index.ejs`, ejsIncludeData);
+    fs.writeFileSync(`${folderName}/views/new.ejs`, ejsIncludeData);
+    fs.writeFileSync(`${folderName}/views/show.ejs`, ejsIncludeData);
+    fs.writeFileSync(`${folderName}/views/edit.ejs`, ejsIncludeData);
+    fs.writeFileSync(`${folderName}/views/partials/header.ejs`, '');
+    fs.writeFileSync(`${folderName}/views/partials/footer.ejs`, '');
+    fs.writeFileSync(`${folderName}/public/styles/css/app.css`, '');
+} catch (error) {
+    console.log(error);
+}
+
