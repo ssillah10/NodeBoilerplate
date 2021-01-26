@@ -21,7 +21,7 @@ const indexJsData = `const express          = require('express'),
 app.use(express.static('public'));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
-app.set('views', path.join(__dirname, '/public/views'));
+app.set('views', path.join(__dirname, 'views'));
 app.use(expressSanitizer());
 app.use(methodOverride('_method'));
 app.set('view engine','ejs');
