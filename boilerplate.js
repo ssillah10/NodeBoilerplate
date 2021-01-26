@@ -8,18 +8,20 @@
 const fs = require('fs');
 const folderName = process.argv[2] || 'Project';
 
-const appJsData = `const express          = require('express'),
+const indexJsData = `const express          = require('express'),
       methodOverride   = require('method-override'),
       expressSanitizer = require('express-sanitizer'),
       app              = express(),
       mongoose         = require('mongoose'),
-      bodyParser       = require('body-parser'),
-      request          = require('request');
+      request          = require('request'),
+      path             = require('path');
      
 
 //   APP CONFIG
 app.use(express.static('public'));
-app.use(bodyParser.urlencoded({extended:true}));
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public')));
+app.set('views', path.join(__dirname, '/public/views'));
 app.use(expressSanitizer());
 app.use(methodOverride('_method'));
 app.set('view engine','ejs');
@@ -159,7 +161,6 @@ app.listen(3000,function(){
 
 const packageJSONData = `{
     "dependencies": {
-        "body-parser": "^1.19.0",
         "ejs": "^3.1.5",
         "express": "^4.17.1",
         "express-sanitizer": "^1.0.5",
@@ -189,7 +190,7 @@ try {
     fs.mkdirSync(`${folderName}/views`);
     fs.mkdirSync(`${folderName}/views/partials`);
 
-    fs.writeFileSync(`${folderName}/app.js`, appJsData);
+    fs.writeFileSync(`${folderName}/index.js`, indexJsData);
     fs.writeFileSync(`${folderName}/package.json`, packageJSONData);
     fs.writeFileSync(`${folderName}/views/index.ejs`, ejsIncludeData);
     fs.writeFileSync(`${folderName}/views/new.ejs`, ejsIncludeData);
