@@ -1,7 +1,7 @@
 // I made this script to automate the process of creating a boilerplate for a basic CRUD app using
 // Node, Express, Mongoose etc. It will create the basic directories and files needed to get you
-// started. It will also create a basic data schema/model mimicing a blogpost/application.
-// Feel free to edit to suit your needs. It will also create basic restful CRUD routes in the app.js 
+// started. It will also create a basic data schema/model mimicing a product/application.
+// Feel free to edit to suit your needs. It will also create basic restful CRUD routes in the index.js 
 // file.
 // Please go through the app.js file and edit as needed. 
 
@@ -13,6 +13,7 @@ const indexJsData = `const express          = require('express'),
       expressSanitizer = require('express-sanitizer'),
       app              = express(),
       mongoose         = require('mongoose'),
+      Product = require('./models/product'),
       request          = require('request'),
       path             = require('path');
      
@@ -34,123 +35,72 @@ mongoose.connect('mongodb://localhost:27017/db_name',{
 .then(() => console.log('Connected to the DB'))
 .catch(err => console.log(err));
 
-// MONGOOSE CONFIG
-const SchemaName = new mongoose.Schema({
-    title:String,
-    image:String,
-    body:String,
-    created:{type:Date,default:Date.now}
-})
-
-let ModelName = mongoose.model('ModelName',SchemaName);
-
-// ModelName.create({
-//     title:"Test Blog",
-//     image:"https://images.pexels.com/photos/261662/pexels-photo-261662.jpeg?auto=compress&cs=tinysrgb&h=350",
-//     body: "I'm baby pBR&B stumptown woke, drinking vinegar ethical iPhone retro meggings tousled raw denim skateboard you probably haven't heard of them sriracha. Hella tousled drinking vinegar normcore kitsch copper mug chicharrones hoodie man braid yuccie shabby chic before they sold out slow-carb truffaut." 
-    
-// },function(err,post){
-//     if(err){
-//         console.log(err)
-//     }else{
-//         console.log('Post Added');
-//         console.log(post)
-//     }
-// })
 
 // RESTFUL ROUTES
 
 // LANDING PAGE
-app.get('/',function(req,res){
-    res.redirect('/blogs');
+app.get('/', function (req, res) {
+    res.redirect('/products');
 })
 
 // INDEX ROUTE
-app.get('/blogs',function(req,res){
-    let blogposts = Blogpost.find({},function(err,allposts){
-        if(err){
-            console.log(err)
-        } else {res.render('index',{blogposts:allposts});
-    }
-    })
+app.get('/products', async (req, res) => {
+   
+        const products = await Product.find({})
+        res.render('products/index', { products });
     
+    
+
 })
 
 // NEW ROUTE
-app.get('/blogs/new',function(req,res){
-    res.render('new');
+app.get('/products/new', (req, res) => {
+    res.render('products/new', { categories });
 })
 
-// CREATE ROUTE 
-app.post('/blogs',function(req,res){
-    let data = req.body.blog;
-    data.body = req.sanitize(data.body); 
-    ModelName.create(data,function(err,blog){
-        if(err){
-            console.log(err)
-        }else{
-            res.redirect('/blogs');
-        }
-    })
-   
+// CREATE ROUTE
+app.post('/products', async (req, res) => {
+    const p = new Product(req.body);
+    await p.save();
+    res.redirect('/products');
+
 })
 
-// SHOW ROUTE 
+// SHOW ROUTE
 
-app.get('/blogs/:id',function(req,res){
-    ModelName.findById(req.params.id,function(err,foundBlog){
-        if (err){
-            console.log(err)
-            res.redirect('/blogs')
-        } else {
-            res.render('show',{blog:foundBlog});
-        }
-    })
-    
+app.get('/products/:id', async (req, res) => {
+    const { id } = req.params
+    const product = await Product.findById(id);
+
+    res.render('products/show', { product });
 })
 
 
 // EDIT ROUTE
-app.get('/blogs/:id/edit',function(req,res){
-    ModelName.findById(req.params.id,function(err,foundBlog){
-        if (err) {
-            console.log(err)
-            res.redirect('/blogs')
-        } else{
-            res.render('edit',{blog:foundBlog});
-        }
-    })
-    
+app.get('/products/:id/edit', async (req, res) => {
+    const { id } = req.params
+    const product = await Product.findById(id)
+    res.render('products/edit', { product, categories });
 })
+
+
 
 
 // UPDATE ROUTE
 
-app.put('/blogs/:id',function(req,res){
-    req.body.blog.body = req.sanitize(req.body.blog.body); 
-    ModelName.findByIdAndUpdate(req.params.id,req.body.blog,function(err,updatedBlog){
-        if(err){
-            console.log(err);
-            res.redirect('/blogs');
-        } else {
-            res.redirect('/blogs/'+req.params.id);
-        }
-    })
-    
-    
+app.put('/products/:id', async (req, res) => {
+    const { id } = req.params
+    await Product.findByIdAndUpdate(id, req.body, { runValidators: true, new: true })
+    res.redirect('/products / $ {id}'); //replace with a template literal
 })
 
 // DELETE ROUTE
-app.delete('/blogs/:id',function(req,res){
-    ModelName.findByIdAndRemove(req.params.id,function(err){
-        if (err){
-            console.log(err);
-            res.send('SOMETHING WENT WRONG');
-        } else{
-            res.redirect('/blogs');
-        }
-    })
+app.delete('/products/:id', async (req, res) => {
+    const { id } = req.params
+    await Product.findByIdAndDelete(id)
+    res.redirect('/products');
 })
+
 
 
 app.listen(3000,function(){
@@ -171,15 +121,102 @@ const packageJSONData = `{
 }
 `;
 
-const ejsIncludeData = `<%- include('partials/header') %>
+const ejsIncludeData = `<%- include('../partials/header') %>
 
-<%- include('partials/footer') %>
+<%- include('../partials/footer') %>
 `;
+
+const productModelData = `const mongoose = require('mongoose');
+
+const productSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true
+    },
+    price: {
+        type: Number,
+        required: true,
+        min: 0
+    },
+    category: {
+        type: String,
+        lowercase: true,
+        enum: ['fruit', 'vegetable', 'dairy']
+    }
+    
+})
+
+let Product = mongoose.model('Product', productSchema);
+
+module.exports = Product;`;
+
+const seedData = `const mongoose = require('mongoose');
+const Product = require('./models/product');
+
+mongoose.connect('mongodb://localhost:27017/db_name', {
+    useUnifiedTopology: true,
+    useNewUrlParser: true
+})
+    .then(() => console.log('Connected to the DB'))
+    .catch(err => console.log(err));
+
+
+const seedProducts = [
+    {
+        name: 'Orange',
+        price: 1.20,
+        category: 'fruit'
+    },
+    {
+        name: 'Organic Goddess Melon',
+        price: 4.99,
+        category: 'fruit'
+    },
+    {
+        name: 'Organic Mini Seedless Watermelon',
+        price: 3.99,
+        category: 'fruit'
+    },
+    {
+        name: 'Milk',
+        price: 2.50,
+        category: 'dairy'
+    },
+    {
+        name: 'Chocolate Whole Milk',
+        price: 3.50,
+        category: 'dairy'
+    },
+    {
+        name: 'Cheese',
+        price: 1.99,
+        category: 'dairy'
+    },
+    {
+        name: 'Cucumber',
+        price: 2.00,
+        category: 'vegetable'
+    },
+    {
+        name: 'Carrot',
+        price: 0.99,
+        category: 'vegetable'
+    }
+]
+
+Product.insertMany(seedProducts)
+    .then(m => {
+        console.log(m)
+    })
+    .catch(err => {
+        console.log(err)
+    });`
 
 
 
 try {
     fs.mkdirSync(folderName);
+    fs.mkdirSync(`${folderName}/models`);
     fs.mkdirSync(`${folderName}/public`);
     fs.mkdirSync(`${folderName}/public/img`);
     fs.mkdirSync(`${folderName}/public/screenshots`);
@@ -189,13 +226,16 @@ try {
     fs.mkdirSync(`${folderName}/public/styles/fonts`);
     fs.mkdirSync(`${folderName}/views`);
     fs.mkdirSync(`${folderName}/views/partials`);
+    fs.mkdirSync(`${folderName}/views/products`);
 
     fs.writeFileSync(`${folderName}/index.js`, indexJsData);
+    fs.writeFileSync(`${folderName}/models/product.js`, productModelData);
     fs.writeFileSync(`${folderName}/package.json`, packageJSONData);
-    fs.writeFileSync(`${folderName}/views/index.ejs`, ejsIncludeData);
-    fs.writeFileSync(`${folderName}/views/new.ejs`, ejsIncludeData);
-    fs.writeFileSync(`${folderName}/views/show.ejs`, ejsIncludeData);
-    fs.writeFileSync(`${folderName}/views/edit.ejs`, ejsIncludeData);
+    fs.writeFileSync(`${folderName}/seeds.js`, seedData);
+    fs.writeFileSync(`${folderName}/views/products/index.ejs`, ejsIncludeData);
+    fs.writeFileSync(`${folderName}/views/products/new.ejs`, ejsIncludeData);
+    fs.writeFileSync(`${folderName}/views/products/show.ejs`, ejsIncludeData);
+    fs.writeFileSync(`${folderName}/views/products/edit.ejs`, ejsIncludeData);
     fs.writeFileSync(`${folderName}/views/partials/header.ejs`, '');
     fs.writeFileSync(`${folderName}/views/partials/footer.ejs`, '');
     fs.writeFileSync(`${folderName}/public/styles/css/app.css`, '');
